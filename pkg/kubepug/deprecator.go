@@ -1,6 +1,7 @@
 package kubepug
 
 import (
+	"fmt"
 	"github.com/rikatz/kubepug/pkg/results"
 )
 
@@ -14,6 +15,7 @@ type Deprecator interface {
 // GetDeprecations returns the results of the comparision between the Input and the APIs
 func GetDeprecations(d Deprecator) (result results.Result) {
 	result.DeprecatedAPIs = d.ListDeprecated()
+	fmt.Println("list deleted")
 	result.DeletedAPIs = d.ListDeleted()
 	return result
 }

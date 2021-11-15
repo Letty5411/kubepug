@@ -56,6 +56,7 @@ func (k *Kubepug) GetDeprecated() (result *results.Result, err error) {
 
 	result = k.getResults(KubernetesAPIs)
 
+
 	return result, nil
 }
 

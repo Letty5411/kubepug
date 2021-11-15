@@ -89,6 +89,7 @@ func runPug(cmd *cobra.Command, args []string) error {
 		return err
 	}
 
+	log.Debugf("found %d Deleted APIs and %d Deprecated APIs", len(result.DeletedAPIs), len(result.DeprecatedAPIs))
 	log.Debug("Starting deprecated objects printing")
 	formatter := formatter.NewFormatter(format)
 	bytes, err := formatter.Output(*result)

@@ -108,8 +108,10 @@ func GetDeprecated(KubeAPIs parser.KubernetesAPIs, config *genericclioptions.Con
 			}
 		}
 
-		if len(list.Items) > 0 {
-			log.Infof("Found %d deprecated objects of type %s/%s/%s", len(list.Items), group, version, resourceName)
+		if len(list.Items) >= 0 {
+			if len(list.Items) > 0 {
+				log.Infof("Found %d deprecated objects of type %s/%s/%s", len(list.Items), group, version, resourceName)
+			}
 			api := results.DeprecatedAPI{
 				Kind:        kind,
 				Deprecated:  dpa.Deprecated,

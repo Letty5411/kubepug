@@ -137,7 +137,6 @@ func GetDeleted(KubeAPIs parser.KubernetesAPIs, config *genericclioptions.Config
 
 	log.Debugf("Walking through %d resource types", len(resourcesList))
 	for _, resourceGroupVersion := range resourcesList {
-
 		// We dont want CRDs or APIExtensions to be walked
 		if _, ok := ignoreObjects[strings.Split(resourceGroupVersion.GroupVersion, "/")[0]]; ok {
 			continue
@@ -150,14 +149,17 @@ func GetDeleted(KubeAPIs parser.KubernetesAPIs, config *genericclioptions.Config
 				continue
 			}
 			keyAPI := fmt.Sprintf("%s/%s", resourceGroupVersion.GroupVersion, resource.Kind)
+			log.Debugf("checking: %s", keyAPI)
 			if _, ok := KubeAPIs[keyAPI]; !ok {
 				gv, err := schema.ParseGroupVersion(resourceGroupVersion.GroupVersion)
 				if err != nil {
 					log.Fatalf("Failed to Parse GroupVersion of Resource")
 				}
 				gvr := schema.GroupVersionResource{Group: gv.Group, Version: gv.Version, Resource: resource.Name}
+				log.Debugf("Listing objects of type %s/%s/%s. ", gv.Group, gv.Version, resource.Kind)
 				list, err := dynClient.Resource(gvr).List(context.TODO(), metav1.ListOptions{})
 				if apierrors.IsNotFound(err) || apierrors.IsMethodNotSupported(err) {
+					fmt.Println("continue")
 					continue
 				}
 
@@ -169,8 +171,10 @@ func GetDeleted(KubeAPIs parser.KubernetesAPIs, config *genericclioptions.Config
 					log.Fatalf("Failed to List objects of type %s/%s/%s. \nError: %v", gv.Group, gv.Version, resource.Kind, err)
 				}
 
-				if len(list.Items) > 0 {
-					log.Debugf("Found %d deleted items in %s/%s", len(list.Items), gvr.Group, resource.Kind)
+				if len(list.Items) >= 0 {
+					if len(list.Items) > 0 {
+						log.Debugf("Found %d deleted items in %s/%s", len(list.Items), gvr.Group, resource.Kind)
+					}
 					d := results.DeletedAPI{
 						Deleted: true,
 						Name:    resource.Name,

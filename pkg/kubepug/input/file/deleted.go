@@ -1,6 +1,7 @@
 package fileinput
 
 import (
+	"fmt"
 	"strings"
 
 	"github.com/rikatz/kubepug/pkg/parser"
@@ -9,9 +10,7 @@ import (
 
 // GetDeleted takes a set of FileItems and checks if they still exists in the API
 func GetDeleted(FileItems FileItems, KubeAPIs parser.KubernetesAPIs) (deleted []results.DeletedAPI) {
-
 	for key, item := range FileItems {
-
 		// Here we want to skip CRDs, so if there's some object with Group like "pug.rkatz.io" we will skip
 		// Valid groups does not contain "." in the middle (like "apps/v1") or if so, they contain the reserved
 		// "k8s.io" (like "scheduling.k8s.io")
@@ -22,7 +21,10 @@ func GetDeleted(FileItems FileItems, KubeAPIs parser.KubernetesAPIs) (deleted []
 			group = gvk[0]
 			version = gvk[1]
 			kind = gvk[2]
-			if strings.Contains(group, ".") && !strings.Contains("group", "k8s.io") {
+			fmt.Println("gvk:", group, version,kind)
+
+			if strings.Contains(group, ".") && !strings.Contains(group, "k8s.io") {
+				fmt.Println("continue")
 				continue
 			}
 		} else {
@@ -30,6 +32,8 @@ func GetDeleted(FileItems FileItems, KubeAPIs parser.KubernetesAPIs) (deleted []
 			kind = gvk[1]
 
 		}
+
+		fmt.Println("gvk:", group, version,kind)
 
 		if _, ok := KubeAPIs[key]; !ok {
 
