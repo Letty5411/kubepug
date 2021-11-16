@@ -134,11 +134,15 @@ func GetDeleted(KubeAPIs parser.KubernetesAPIs, config *genericclioptions.Config
 			ignoreObjects.populateAPIService(dynClient, version)
 		}
 	}
+	log.Debugf("skip checking %d resouces", len(ignoreObjects))
+	log.Debugf("ignoreobjects:%#v", ignoreObjects)
 
 	log.Debugf("Walking through %d resource types", len(resourcesList))
 	for _, resourceGroupVersion := range resourcesList {
+		log.Debugf("checking resourceGroupVersion:%s", resourceGroupVersion)
 		// We dont want CRDs or APIExtensions to be walked
 		if _, ok := ignoreObjects[strings.Split(resourceGroupVersion.GroupVersion, "/")[0]]; ok {
+			log.Warnf("skip checkeing CRDs or APIExtensions:%s",resourceGroupVersion.GroupVersion )
 			continue
 		}
 
@@ -146,10 +150,11 @@ func GetDeleted(KubeAPIs parser.KubernetesAPIs, config *genericclioptions.Config
 			resource := &resourceGroupVersion.APIResources[i]
 			// We don't want to check subObjects (like pods/status)
 			if len(strings.Split(resource.Name, "/")) != 1 {
+				log.Debugf("skip checking resource:%s", resource.Name)
 				continue
 			}
 			keyAPI := fmt.Sprintf("%s/%s", resourceGroupVersion.GroupVersion, resource.Kind)
-			log.Debugf("checking: %s", keyAPI)
+			log.Debugf("start checking: %s", keyAPI)
 			if _, ok := KubeAPIs[keyAPI]; !ok {
 				gv, err := schema.ParseGroupVersion(resourceGroupVersion.GroupVersion)
 				if err != nil {
